@@ -12,7 +12,9 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+      return response()->json([
+        'data' => Employee::with('department')->latest()->get()
+      ], 200);
     }
 
     /**
@@ -20,7 +22,20 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request-> validate([
+            'first_name'=> 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'required|email|unique:employees',
+            'salary'=> 'required|numeric',
+            'department_id' => 'required|exists:departments,id'
+        ]);
+
+        $employee = Employee::create($data);
+
+        return response()->json([
+            'message' => 'Employee created successfully',
+            'data' => $employee->load('department')
+        ], 201);
     }
 
     /**
